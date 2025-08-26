@@ -6,3 +6,4 @@ Website ini juga menyediakan fitur penyediaan data berbentuk Chart dan ada juga 
 
 ## Cara mengakses website:
 Buka link berikut>>  
+https://belvafwn.github.io/BPPKAD-BLORA-WEBSITE/
