@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembiayaan - BPPKAD Blora</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <h1>BPPKAD Kabupaten Blora</h1>
+                <p>Realisasi Pembiayaan APBD 2017-2024</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="pendapatan.html">Pendapatan</a></li>
+                <li><a href="pembelanjaan.html">Pembelanjaan</a></li>
+                <li><a href="pembiayaan.html" class="active">Pembiayaan</a></li>
+                <li><a href="admin.html" class="admin-link">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title">
+                <h2>Data Pembiayaan APBD</h2>
+                <p>Realisasi pembiayaan daerah Kabupaten Blora tahun 2017-2024</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="stats-cards">
+                <div class="card">
+                    <h3>Total Anggaran</h3>
+                    <div class="stat-value" id="totalAnggaran">-</div>
+                </div>
+                <div class="card">
+                    <h3>Total Realisasi</h3>
+                    <div class="stat-value" id="totalRealisasi">-</div>
+                </div>
+                <div class="card">
+                    <h3>Persentase Capaian</h3>
+                    <div class="stat-value" id="persentaseCapaian">-</div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-section">
+                <div class="chart-container">
+                    <h3>Realisasi Pembiayaan per Subkategori</h3>
+                    <canvas id="pembiayaanChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-container">
+                    <h3>Trend Pembiayaan 2017-2024</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="chart-section">
+                <h3>Detail Data Pembiayaan</h3>
+                <div id="dataTable">
+                    <div class="text-center">
+                        <span class="loading"></span> Memuat data...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 BPPKAD Kabupaten Blora. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Load pembiayaan data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategoryData();
+        });
+
+        async function loadCategoryData() {
+            try {
+                const data = await getDataByCategory('Pembiayaan');
+                
+                // Update summary cards
+                updateSummaryCards(data);
+                
+                // Create charts
+                createCategoryChart(data);
+                createTrendChart(data);
+                
+                // Create data table
+                createDataTable('dataTable', data, 'Pembiayaan');
+                
+            } catch (error) {
+                console.error('Error loading pembiayaan data:', error);
+                showAlert('Gagal memuat data pembiayaan: ' + error.message, 'error');
+            }
+        }
+
+        function updateSummaryCards(data) {
+            const totalAnggaran = data.reduce((sum, item) => sum + (parseFloat(item.anggaran) || 0), 0);
+            const totalRealisasi = data.reduce((sum, item) => sum + (parseFloat(item.realisasi) || 0), 0);
+            const persentase = totalAnggaran > 0 ? ((totalRealisasi / totalAnggaran) * 100).toFixed(2) : 0;
+            
+            document.getElementById('totalAnggaran').textContent = formatRupiah(totalAnggaran);
+            document.getElementById('totalRealisasi').textContent = formatRupiah(totalRealisasi);
+            document.getElementById('persentaseCapaian').textContent = persentase + '%';
+        }
+
+        function createCategoryChart(data) {
+            const chartData = processDataForChart(data, 'Pembiayaan');
+            if (chartData) {
+                createBarChart('pembiayaanChart', chartData, {
+                    title: 'Perbandingan Anggaran vs Realisasi Pembiayaan'
+                });
+            }
+        }
+
+        function createTrendChart(data) {
+            const chartData = processDataForTrendChart(data, 'Pembiayaan');
+            if (chartData) {
+                createLineChart('trendChart', chartData, {
+                    title: 'Trend Pembiayaan dari Tahun ke Tahun'
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - BPPKAD Blora</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <h1>BPPKAD Kabupaten Blora</h1>
+                <p>Panel Administrasi - Realisasi APBD 2017-2024</p>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <ul class="nav-links">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="pendapatan.html">Pendapatan</a></li>
+                <li><a href="pembelanjaan.html">Pembelanjaan</a></li>
+                <li><a href="pembiayaan.html">Pembiayaan</a></li>
+                <li><a href="admin.html" class="admin-link active">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-title">
+                <h2>Panel Administrasi</h2>
+                <p>Kelola data realisasi APBD Kabupaten Blora</p>
+            </div>
+
+            <!-- Form Input Data -->
+            <div class="form-section">
+                <h3>Tambah Data APBD</h3>
+                <form id="apbdForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="kategori">Kategori *</label>
+                            <select name="kategori" id="kategori" required>
+                                <option value="">Pilih Kategori</option>
+                                <option value="Pendapatan">Pendapatan</option>
+                                <option value="Pembelanjaan">Pembelanjaan</option>
+                                <option value="Pembiayaan">Pembiayaan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tahun">Tahun *</label>
+                            <select name="tahun" id="tahun" required>
+                                <option value="">Pilih Tahun</option>
+                                <option value="2017">2017</option>
+                                <option value="2018">2018</option>
+                                <option value="2019">2019</option>
+                                <option value="2020">2020</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="subkategori">Subkategori *</label>
+                        <input type="text" name="subkategori" id="subkategori" placeholder="Masukkan nama subkategori" required>
+                        <small>Contoh: Pajak Daerah, Retribusi Daerah, Dana Perimbangan, dll.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isi_subkategori">Isi/Rincian Subkategori</label>
+                        <input type="text" name="isi_subkategori" id="isi_subkategori" placeholder="Masukkan rincian subkategori (opsional)">
+                        <small>Contoh: Pajak Bumi dan Bangunan, Pajak Kendaraan Bermotor, dll.</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="anggaran">Anggaran (Rupiah)</label>
+                            <input type="number" name="anggaran" id="anggaran" placeholder="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="realisasi">Realisasi (Rupiah)</label>
+                            <input type="number" name="realisasi" id="realisasi" placeholder="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Tambah Data</button>
+                    <button type="reset" class="btn">Reset Form</button>
+                </form>
+            </div>
+
+            <!-- Data Tables -->
+            <div class="chart-section">
+                <h3>Kelola Data Existing</h3>
+                
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="showTab('pendapatan-tab')">Pendapatan</button>
+                    <button class="tab-btn" onclick="showTab('pembelanjaan-tab')">Pembelanjaan</button>
+                    <button class="tab-btn" onclick="showTab('pembiayaan-tab')">Pembiayaan</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="pendapatan-tab" class="tab-content active">
+                    <h4>Data Pendapatan</h4>
+                    <div id="pendapatanTable">
+                        <div class="text-center">
+                            <span class="loading"></span> Memuat data...
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pembelanjaan-tab" class="tab-content">
+                    <h4>Data Pembelanjaan</h4>
+                    <div id="pembelanjaanTable">
+                        <div class="text-center">
+                            <span class="loading"></span> Memuat data...
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pembiayaan-tab" class="tab-content">
+                    <h4>Data Pembiayaan</h4>
+                    <div id="pembiayaanTable">
+                        <div class="text-center">
+                            <span class="loading"></span> Memuat data...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-cards">
+                <div class="card">
+                    <h3>Total Data</h3>
+                    <div class="stat-value" id="totalData">-</div>
+                </div>
+                <div class="card">
+                    <h3>Data Terbaru</h3>
+                    <div class="stat-value" id="latestData">-</div>
+                </div>
+                <div class="card">
+                    <h3>Terakhir Diupdate</h3>
+                    <div class="stat-value" id="lastUpdate">-</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 BPPKAD Kabupaten Blora. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Tab functionality
+        function showTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Load admin data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAdminData();
+        });
+
+        async function loadAdminData() {
+            try {
+                const data = await getAllData();
+                
+                // Update statistics
+                updateAdminStats(data);
+                
+                // Load data tables
+                createDataTable('pendapatanTable', data, 'Pendapatan');
+                createDataTable('pembelanjaanTable', data, 'Pembelanjaan');
+                createDataTable('pembiayaanTable', data, 'Pembiayaan');
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showAlert('Gagal memuat data: ' + error.message, 'error');
+            }
+        }
+
+        function updateAdminStats(data) {
+            // Total data count
+            document.getElementById('totalData').textContent = data.length;
+            
+            // Latest data
+            if (data.length > 0) {
+                const latest = data[0]; // Data is ordered by created_at desc
+                document.getElementById('latestData').textContent = latest.subkategori || 'N/A';
+                
+                // Format date
+                const date = new Date(latest.created_at);
+                const formattedDate = date.toLocaleDateString('id-ID', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                document.getElementById('lastUpdate').textContent = formattedDate;
+            } else {
+                document.getElementById('latestData').textContent = 'Belum ada data';
+                document.getElementById('lastUpdate').textContent = '-';
+            }
+        }
+
+        // Override confirmDelete for admin page
+        window.confirmDelete = async function(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data ini?')) {
+                try {
+                    await deleteApbdData(id);
+                    showAlert('Data berhasil dihapus!', 'success');
+                    
+                    // Reload admin data
+                    setTimeout(() => {
+                        loadAdminData();
+                    }, 1000);
+                    
+                } catch (error) {
+                    showAlert('Gagal menghapus data: ' + error.message, 'error');
+                }
+            }
+        };
+    </script>
+</body>
+</html>
